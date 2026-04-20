@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html">
+<h:head>
+    <title>Login | London Underground</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background: #f0f2f5; }
+        .login-card { background: white; padding: 40px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); width: 300px; }
+        .header { background: #0019a8; color: white; padding: 10px; text-align: center; border-radius: 4px; margin-bottom: 20px; }
+        .btn { width: 100%; padding: 10px; background: #0019a8; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
+    </style>
+</h:head>
+<h:body>
+    <div class="login-card">
+        <div class="header"><h2>Staff Login</h2></div>
+        <h:form>
+            <h:panelGrid columns="1" style="width:100%">
+                <h:outputLabel value="Username:" />
+                <h:inputText value="#{loginBean.username}" style="width:90%; margin-bottom:15px; padding:5px;" />
+
+                <h:outputLabel value="Password:" />
+                <h:inputSecret value="#{loginBean.password}" style="width:90%; margin-bottom:20px; padding:5px;" />
+
+                <h:commandButton value="Login" action="#{loginBean.login()}" styleClass="btn" />
+            </h:panelGrid>
+        </h:form>
+    </div>
+</h:body>
+</html>

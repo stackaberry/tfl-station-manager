@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:f="jakarta.faces.core"
+      xmlns:p="http://xmlns.jcp.org/jsf/passthrough">
+<h:head>
+    <title>TfL Station Management System</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; background-color: #f0f2f5; color: #333; }
+        .container { max-width: 1100px; margin: auto; }
+        .header { background: #0019a8; color: white; padding: 20px; border-radius: 8px 8px 0 0; display: flex; justify-content: space-between; align-items: center; }
+        nav { background: white; padding: 15px; margin-bottom: 20px; border-radius: 0 0 8px 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        nav a { margin-right: 20px; text-decoration: none; font-weight: bold; color: #0019a8; }
+        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        .grid-form { display: grid; grid-template-columns: 120px 1fr 1fr; gap: 10px; align-items: center; }
+        .error-msg { color: #d93025; font-size: 12px; font-weight: bold; }
+        .btn { padding: 8px 16px; border-radius: 4px; border: none; cursor: pointer; font-weight: bold; transition: 0.2s; }
+        .btn-primary { background: #0019a8; color: white; }
+        .btn-primary:hover { background: #001485; }
+        .btn-danger { color: #d93025; background: none; border: 1px solid #d93025; padding: 4px 8px; font-size: 12px; }
+        .btn-danger:hover { background: #feebeb; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th { background: #f8f9fa; padding: 12px; text-align: left; border-bottom: 2px solid #0019a8; }
+        td { padding: 12px; border-bottom: 1px solid #eee; }
+        .line-badge { padding: 2px 8px; border-radius: 3px; color: white; font-size: 11px; font-weight: bold; text-transform: uppercase; }
+    </style>
+</h:head>
+<h:body>
+    <div class="container">
+        <div class="header">
+            <h1>TfL Station Manager</h1>
+            <h:form id="authForm">
+                <h:link value="Staff Login" outcome="login" rendered="#{!loginBean.loggedIn}" style="color:white; text-decoration:none; font-size: 14px; border: 1px solid white; padding: 5px 10px; border-radius: 4px;"/>
+                <h:panelGroup rendered="#{loginBean.loggedIn}">
+                    <span style="font-size: 14px; margin-right: 10px;">Logged in as: <strong>#{loginBean.username}</strong></span>
+                    <h:commandLink action="#{loginBean.logout()}" value="Logout" style="color: #ff9999; font-weight: bold;"/>
+                </h:panelGroup>
+            </h:form>
+        </div>
+
+        <nav>
+            <h:link value="📍 Manage Stations" outcome="index" />
+            <h:link value="🚇 Manage Lines" outcome="lines" />
+            <h:link value="📞 Contact Us" outcome="contact" />
+        </nav>
+
+        <div class="card">
+            <h3>#{stationBean.editMode ? 'Edit Existing Station' : 'Add New Station'}</h3>
+            <h:form id="stationForm">
+                <div class="grid-form">
+                    <h:outputLabel value="Station ID:" />
+                    <h:inputText id="sid" value="#{stationBean.newStation.id}" disabled="#{stationBean.editMode}" required="true" requiredMessage="ID is required" style="width: 80px;"/>
+                    <h:message for="sid" styleClass="error-msg" />
+
+                    <h:outputLabel value="Station Name:" />
+                    <h:inputText id="sname" value="#{stationBean.newStation.name}" required="true" requiredMessage="Name required" style="width: 250px;"/>
+                    <h:message for="sname" styleClass="error-msg" />
+
+                    <h:outputLabel value="Zone:" />
+                    <h:inputText id="szone" value="#{stationBean.newStation.zone}" required="true" requiredMessage="Zone required" style="width: 50px;">
+                        <f:validateLongRange minimum="1" maximum="9" />
+                    </h:inputText>
+                    <h:message for="szone" styleClass="error-msg" />
+
+                    <h:outputLabel value="Tube Line:" />
+                    <h:selectOneMenu id="sline" value="#{stationBean.newStation.lineId}">
+                        <f:selectItems value="#{stationBean.allLines}" var="l" itemLabel="#{l.name}" itemValue="#{l.id}" />
+                    </h:selectOneMenu>
+                    <h:message for="sline" styleClass="error-msg" />
+                </div>
+
+                <div style="margin-top: 20px;">
+                    <h:commandButton value="#{stationBean.editMode ? 'Update Station' : 'Save Station'}"
+                                     action="#{stationBean.saveStation()}" styleClass="btn btn-primary" />
+                    <h:commandButton value="Cancel" action="#{stationBean.cancelEdit()}"
+                                     immediate="true" rendered="#{stationBean.editMode}" styleClass="btn" style="margin-left:10px; background:#ccc;"/>
+                </div>
+            </h:form>
+        </div>
+
+        <div class="card">
+            <h:form id="searchForm" style="display:flex; gap:10px; margin-bottom: 20px;">
+                <h:inputText id="searchInput" value="#{stationBean.searchQuery}" p:placeholder="Live search by name..."
+                             style="padding:10px; width:300px; border:1px solid #ccc; border-radius:4px;">
+                    <f:ajax event="keyup" render="stationTable" execute="@this" />
+                </h:inputText>
+
+                <h:commandButton value="Search" action="#{stationBean.getStations()}" styleClass="btn" style="background:#666; color:white;">
+                    <f:ajax execute="@form" render="stationTable" />
+                </h:commandButton>
+
+                <h:commandButton value="Clear" action="#{stationBean.setSearchQuery('')}" styleClass="btn" style="background:#eee;">
+                    <f:ajax execute="@this" render="searchForm stationTable" />
+                </h:commandButton>
+            </h:form>
+
+            <h:dataTable id="stationTable" value="#{stationBean.stations}" var="s">
+                <h:column>
+                    <f:facet name="header">ID</f:facet>
+                    #{s.id}
+                </h:column>
+                <h:column>
+                    <f:facet name="header">Station Name</f:facet>
+                    <strong>#{s.name}</strong>
+                </h:column>
+                <h:column>
+                    <f:facet name="header">Zone</f:facet>
+                    #{s.zone}
+                </h:column>
+                <h:column>
+                    <f:facet name="header">Line (Joined)</f:facet>
+                    <h:panelGroup rendered="#{s.lineId == 1}"><span class="line-badge" style="background:#B36305;">Bakerloo</span></h:panelGroup>
+                    <h:panelGroup rendered="#{s.lineId == 2}"><span class="line-badge" style="background:#E32017;">Central</span></h:panelGroup>
+                    <h:panelGroup rendered="#{s.lineId == 3}"><span class="line-badge" style="background:#A0A5A9;">Jubilee</span></h:panelGroup>
+                    <h:panelGroup rendered="#{s.lineId == 4}"><span class="line-badge" style="background:#000000;">Northern</span></h:panelGroup>
+                    <h:panelGroup rendered="#{s.lineId == 5}"><span class="line-badge" style="background:#003688;">Piccadilly</span></h:panelGroup>
+                    <h:panelGroup rendered="#{s.lineId == 6}"><span class="line-badge" style="background:#0098D4;">Victoria</span></h:panelGroup>
+                    <h:panelGroup rendered="#{s.lineId == 7}"><span class="line-badge" style="background:#6950a1;">Elizabeth</span></h:panelGroup>
+                    <h:panelGroup rendered="#{s.lineId > 7}"><span class="line-badge" style="background:#666;">Other</span></h:panelGroup>
+                </h:column>
+                <h:column>
+                    <f:facet name="header">Management</f:facet>
+                    <h:form>
+                        <h:commandLink value="Edit" action="#{stationBean.editStation(s)}" style="color:#0019a8; margin-right:15px; font-weight:bold;"/>
+                        <h:commandLink value="Delete" action="#{stationBean.delete(s.id)}"
+                                       onclick="return confirm('Delete this station?')" styleClass="btn-danger" style="text-decoration:none;"/>
+                    </h:form>
+                </h:column>
+            </h:dataTable>
+
+            <h:panelGroup rendered="#{empty stationBean.stations}">
+                <p style="text-align:center; color:#999; padding:20px;">No results found.</p>
+            </h:panelGroup>
+        </div>
+    </div>
+</h:body>
+</html>

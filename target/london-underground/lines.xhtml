@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:f="jakarta.faces.core">
+<h:head>
+    <title>TfL Line Manager</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; padding: 30px; background: #f8f9fa; }
+        .container { max-width: 800px; margin: auto; }
+        .header { background: #d93025; color: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        nav { margin-bottom: 20px; }
+        nav a { margin-right: 15px; text-decoration: none; color: #d93025; font-weight: bold; }
+        .btn { padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        .btn-primary { background: #d93025; color: white; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th { background: #f1f1f1; text-align: left; padding: 12px; }
+        td { padding: 12px; border-bottom: 1px solid #dee2e6; }
+    </style>
+</h:head>
+<h:body>
+    <div class="container">
+        <div class="header"><h1>TfL Line Manager</h1></div>
+
+        <nav>
+            <h:link value="📍 Stations" outcome="index" />
+            <h:link value="🚇 Lines" outcome="lines" />
+        </nav>
+
+        <div class="card">
+            <h3>#{lineBean.editMode ? 'Edit Line' : 'Add New Tube Line'}</h3>
+            <h:form>
+                <h:panelGrid columns="2" cellpadding="5">
+                    <h:outputLabel value="Line ID:" />
+                    <h:inputText value="#{lineBean.newLine.id}" disabled="#{lineBean.editMode}" />
+
+                    <h:outputLabel value="Line Name:" />
+                    <h:inputText value="#{lineBean.newLine.name}" required="true" />
+                </h:panelGrid>
+                <div style="margin-top:15px;">
+                    <h:commandButton value="#{lineBean.editMode ? 'Update' : 'Add'}"
+                                     action="#{lineBean.saveLine()}" styleClass="btn btn-primary" />
+                    <h:commandButton value="Cancel" action="#{lineBean.cancelEdit()}"
+                                     rendered="#{lineBean.editMode}" style="margin-left:10px;"/>
+                </div>
+            </h:form>
+        </div>
+
+        <h:dataTable value="#{lineBean.lines}" var="l" styleClass="card">
+            <h:column><f:facet name="header">ID</f:facet>#{l.id}</h:column>
+            <h:column><f:facet name="header">Line Name</f:facet>#{l.name}</h:column>
+            <h:column>
+                <f:facet name="header">Actions</f:facet>
+                <h:form>
+                    <h:commandLink value="Edit" action="#{lineBean.editLine(l)}" style="margin-right:10px; color:#d93025;"/>
+                    <h:commandLink value="Delete" action="#{lineBean.delete(l.id)}"
+                                   onclick="return confirm('Deleting a line will affect all its stations. Proceed?')"
+                                   style="color:red;"/>
+                </h:form>
+            </h:column>
+        </h:dataTable>
+    </div>
+</h:body>
+</html>
