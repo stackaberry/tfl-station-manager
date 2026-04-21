@@ -9,6 +9,7 @@
         .login-card { background: white; padding: 40px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); width: 300px; }
         .header { background: #0019a8; color: white; padding: 10px; text-align: center; border-radius: 4px; margin-bottom: 20px; }
         .btn { width: 100%; padding: 10px; background: #0019a8; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        .error { color: #d93025; font-size: 14px; margin-bottom: 10px; }
     </style>
 </h:head>
 <h:body>
@@ -21,6 +22,8 @@
 
                 <h:outputLabel value="Password:" />
                 <h:inputSecret value="#{loginBean.password}" style="width:90%; margin-bottom:20px; padding:5px;" />
+
+                <h:messages globalOnly="true" styleClass="error" />
 
                 <h:commandButton value="Login" action="#{loginBean.login()}" styleClass="btn" />
             </h:panelGrid>
