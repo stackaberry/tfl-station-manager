@@ -38,7 +38,13 @@
             <artifactId>derbytools</artifactId>
             <version>10.17.1.0</version>
         </dependency>
-
+             
+        <dependency>
+            <groupId>org.apache.derby</groupId>
+            <artifactId>derbyshared</artifactId>
+            <version>10.17.1.0</version>
+        </dependency>
+             
     </dependencies>
 
     <build>
