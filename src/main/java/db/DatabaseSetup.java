@@ -4,12 +4,18 @@ import java.sql.*;
 
 public class DatabaseSetup {
 
-    public static void main(String[] args) {
-        // "create=true" tells Derby to build a new folder if it's missing
-        String url = "jdbc:derby:C:/Users/Matt/Desktop/New folder/tube_db;create=true";
+    public static void initialiseIfNeeded(Connection conn) throws SQLException {
+        if (tableExists(conn, "STATIONS")) {
+            return; // already set up, nothing to do
+        }
 
-        try (Connection conn = DriverManager.getConnection(url);
-             Statement stmt = conn.createStatement()) {
+    //public static void main(String[] args) {
+        // "create=true" tells Derby to build a new folder if it's missing
+        //String url = "jdbc:derby:C:/Users/Matt/Desktop/New folder/tube_db;create=true";
+
+        try (Statement stmt = conn.createStatement()) {
+        //try (Connection conn = DriverManager.getConnection(url);
+             //Statement stmt = conn.createStatement()) {
 
             System.out.println("Building new database structure...");
 
@@ -63,8 +69,15 @@ public class DatabaseSetup {
 
             System.out.println("DONE: Fresh database created and populated!");
 
-        } catch (SQLException e) {
-            e.printStackTrace();
+        //} catch (SQLException e) {
+            //e.printStackTrace();
+        }
+    }
+
+    private static boolean tableExists(Connection conn, String tableName) throws SQLException {
+        DatabaseMetaData meta = conn.getMetaData();
+        try (ResultSet rs = meta.getTables(null, null, tableName, null)) {
+            return rs.next();
         }
     }
 }
