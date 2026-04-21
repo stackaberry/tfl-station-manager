@@ -4,6 +4,7 @@ import dao.UserDAO;
 import models.User;
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.inject.Named;
+import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
 import java.io.Serializable;
 
@@ -22,10 +23,15 @@ public class LoginBean implements Serializable {
 
         if (loggedInUser != null) {
             System.out.println("Login Success!");
+            FacesContext.getCurrentInstance().getExternalContext()
+                .getSessionMap().put("user", loggedInUser.getUsername());
             return "index?faces-redirect=true";
         } else {
-            System.out.println("Login Failed - User not found in DB");
-            return "login?faces-redirect=true";
+            //System.out.println("Login Failed - User not found in DB");
+            //return "login?faces-redirect=true";
+            FacesContext.getCurrentInstance().addMessage(null,
+                new FacesMessage(FacesMessage.SEVERITY_ERROR, "Login failed", "Invalid username or password."));
+            return null;
         }
     }
 
